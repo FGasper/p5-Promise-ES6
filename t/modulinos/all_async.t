@@ -1,11 +1,21 @@
+#!/usr/bin/env perl
+
+package t::all_async;
+
 use strict;
 use warnings;
+
+use parent 'Test::Class::Tiny';
 
 use Test::More;
 use Test::FailWarnings;
 
-use FindBin;
-use lib "$FindBin::Bin/lib";
+BEGIN {
+    my @path = File::Spec->splitdir( __FILE__ );
+    splice( @path, -2, 2, 'lib' );
+    push @INC, File::Spec->catdir(@path);
+}
+
 use MemoryCheck;
 
 use Eventer;
@@ -13,7 +23,7 @@ use PromiseTest;
 
 use Promise::ES6;
 
-{
+sub T0_tests {
     my $eventer = Eventer->new();
 
     my ($resolve1, $resolve2);
@@ -66,4 +76,8 @@ use Promise::ES6;
     waitpid $pid, 0;
 }
 
-done_testing;
+if (!caller) {
+    __PACKAGE__->runtests();
+}
+
+1;

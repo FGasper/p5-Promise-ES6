@@ -2,12 +2,18 @@ package t::catch;
 use strict;
 use warnings;
 
-use FindBin;
-use lib "$FindBin::Bin/lib";
+use File::Spec;
+
+BEGIN {
+    my @path = File::Spec->splitdir( __FILE__ );
+    splice( @path, -2, 2, 'lib' );
+    push @INC, File::Spec->catdir(@path);
+}
+
 use MemoryCheck;
 use PromiseTest;
 
-use parent qw(Test::Class);
+use parent qw(Test::Class::Tiny);
 
 use Time::HiRes;
 
@@ -17,7 +23,7 @@ use Test::FailWarnings;
 
 use Promise::ES6;
 
-sub reject_catch : Tests {
+sub T0_reject_catch {
     my ($self) = @_;
 
     my $p = Promise::ES6->new(sub {
@@ -30,7 +36,7 @@ sub reject_catch : Tests {
     is PromiseTest::await($p), 'oh my god!';
 }
 
-sub then_reject_catch : Tests {
+sub T1_then_reject_catch {
     my ($self) = @_;
 
     my $p = Promise::ES6->new(sub {
@@ -38,18 +44,22 @@ sub then_reject_catch : Tests {
         $resolve->(123);
     })->then(sub {
         my ($value) = @_;
-        return Promise::ES6->new(sub {
+        my $p = Promise::ES6->new(sub {
             my ($resolve, $reject) = @_;
-            die { message => 'oh my god', value => $value };
+            # die { message => 'oh my god', value => $value };
+            $reject->( { message => 'oh my god', value => $value } );
         });
+
+        return $p;
     })->catch(sub {
         my ($reason) = @_;
         return $reason;
     });
+
     is_deeply PromiseTest::await($p), { message => 'oh my god', value => 123 };
 }
 
-sub exception_catch : Tests {
+sub T0_exception_catch {
     my ($self) = @_;
 
     my $p = Promise::ES6->new(sub {
@@ -61,7 +71,7 @@ sub exception_catch : Tests {
     }, { message => 'oh my god!!' };
 }
 
-sub then_exception_await : Tests {
+sub T0_then_exception_await {
     my ($self) = @_;
 
     my $p = Promise::ES6->new(sub {
@@ -74,7 +84,7 @@ sub then_exception_await : Tests {
     is_deeply exception { PromiseTest::await($p) }, { message => 123 };
 }
 
-sub exception_then_await : Tests {
+sub T0_exception_then_await {
     my ($self) = @_;
 
     my $p = Promise::ES6->new(sub {
@@ -90,7 +100,7 @@ sub exception_then_await : Tests {
     is_deeply PromiseTest::await($p), { reason => { message => 'oh my god!!!' } };
 }
 
-sub exception_catch_then_await : Tests {
+sub T0_exception_catch_then_await {
     my ($self) = @_;
 
     my $p = Promise::ES6->new(sub {
@@ -106,4 +116,8 @@ sub exception_catch_then_await : Tests {
     is_deeply PromiseTest::await($p), { recover => 1, reason => { message => 'oh my god!!!' } };
 }
 
-__PACKAGE__->new()->runtests;
+if (!caller) {
+    __PACKAGE__->runtests();
+}
+
+1;

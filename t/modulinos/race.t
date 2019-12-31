@@ -2,12 +2,15 @@ package t::race;
 use strict;
 use warnings;
 
-use FindBin;
-use lib "$FindBin::Bin/lib";
+BEGIN {
+    my @path = File::Spec->splitdir( __FILE__ );
+    splice( @path, -2, 2, 'lib' );
+    push @INC, File::Spec->catdir(@path);
+}
 use MemoryCheck;
 use PromiseTest;
 
-use parent qw(Test::Class);
+use parent qw(Test::Class::Tiny);
 
 use Time::HiRes;
 
@@ -17,7 +20,7 @@ use Test::FailWarnings;
 
 use Promise::ES6;
 
-sub race_with_value : Tests {
+sub T0_race_with_value {
     my ($self) = @_;
 
     my $resolve_cr;
@@ -35,4 +38,8 @@ sub race_with_value : Tests {
     is $value, 2, 'got raw value instantly';
 }
 
-__PACKAGE__->new()->runtests;
+if (!caller) {
+    __PACKAGE__->runtests();
+}
+
+1;

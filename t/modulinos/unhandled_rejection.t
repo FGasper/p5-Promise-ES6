@@ -1,10 +1,20 @@
 #!/usr/bin/env perl
 
+package t::unhandled_rejection;
+
 use strict;
 use warnings;
 
-use FindBin;
-use lib "$FindBin::Bin/lib";
+use parent qw(Test::Class::Tiny);
+
+use File::Spec;
+
+BEGIN {
+    my @path = File::Spec->splitdir( __FILE__ );
+    splice( @path, -2, 2, 'lib' );
+    push @INC, File::Spec->catdir(@path);
+}
+
 use MemoryCheck;
 
 use Test::More;
@@ -13,7 +23,7 @@ use Test::FailWarnings;
 
 use Promise::ES6;
 
-{
+sub T0_tests {
     my @warnings;
     local $SIG{'__WARN__'} = sub { push @warnings, @_ };
 
@@ -62,7 +72,7 @@ use Promise::ES6;
                 \@warnings,
                 [],
                 'do NOT warn() when constructor callback rejects “peacefully”',
-            );
+            ) or diag explain \@warnings;
         },
         sub {
             Promise::ES6->new( sub { die 123 } )->then( sub { 234 } );
@@ -71,7 +81,7 @@ use Promise::ES6;
                 \@warnings,
                 [ re( qr<123> ) ],
                 'warn() only once',
-            );
+            ) or diag explain \@warnings;
         },
 
         sub {
@@ -93,4 +103,6 @@ use Promise::ES6;
     }
 }
 
-done_testing();
+__PACKAGE__->runtests() if !caller;
+
+1;
