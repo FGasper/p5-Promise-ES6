@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More;
 
-use Promise::ES6 ( backend => 'XS' );
+use Promise::ES6;
 
 use Data::Dumper;
 

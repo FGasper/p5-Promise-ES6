@@ -6,8 +6,11 @@ use strict;
 use warnings;
 use autodie;
 
+use Cwd;
+use File::Spec;
+
 BEGIN {
-    my @path = File::Spec->splitdir( __FILE__ );
+    my @path = File::Spec->splitdir( Cwd::abs_path(__FILE__) );
     splice( @path, -2, 2, 'lib' );
     push @INC, File::Spec->catdir(@path);
 }
@@ -28,6 +31,7 @@ if (!caller) {
 
 sub _REQUIRE {
     require Mojo::IOLoop;
+    die "Mojo::IOLoop lacks next_tick()." if !Mojo::IOLoop->can('next_tick');
 }
 
 sub _RESOLVE {
