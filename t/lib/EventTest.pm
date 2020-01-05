@@ -14,21 +14,23 @@ sub _FULL_BACKEND {
 }
 
 sub T6_run {
-    my ($class) = @_;
+    my ($self) = @_;
+
+    my $class = ref $self;
 
   SKIP: {
-        eval { $class->_REQUIRE(); 1 } or skip "$class: Backend isn’t available: $@", _TEST_COUNT();
+        eval { $self->_REQUIRE(); 1 } or skip "$class: Backend isn’t available: $@", $self->num_tests();
 
-        my $backend = $class->_BACKEND();
+        my $backend = $self->_BACKEND();
         require "Promise/ES6/$backend.pm";
 
-        $class->_test_normal();
-        $class->_test_die_in_constructor();
-        $class->_test_resolve();
-        $class->_test_reject();
+        $self->_test_normal();
+        $self->_test_die_in_constructor();
+        $self->_test_resolve();
+        $self->_test_reject();
 
-        $class->_test_call_again_in_callback();
-        $class->_test_die_in_then();
+        $self->_test_call_again_in_callback();
+        $self->_test_die_in_then();
     }
 }
 
