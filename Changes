@@ -1,9 +1,13 @@
 Revision history for Perl module Promise::ES6
 
-0.17
+0.18
 - Rework tests
 - Add experimental XS backend support via Promise::XS.
-- Drop Perl 5.8 support.
+- Drop Perl 5.8 support. (5.8 can’t use Test2.)
+
+0.17 Sun 5 Jan 2020
+- Optimization: remove extra call to isa(), and use $self rather than $_[0].
+  (Thank you, bdraco!)
 
 0.16 Tue 31 Dec 2019
 - Optimization: reuse coderefs in all() and race().
