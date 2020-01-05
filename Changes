@@ -3,6 +3,7 @@ Revision history for Perl module Promise::ES6
 0.17
 - Rework tests
 - Add experimental XS backend support via Promise::XS.
+- Drop Perl 5.8 support.
 
 0.16 Tue 31 Dec 2019
 - Optimization: reuse coderefs in all() and race().
