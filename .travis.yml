@@ -18,7 +18,7 @@ perl:
 
 before_install:
     - eval $(curl https://travis-perl.github.io/init) --auto
-    - cpanm --notest Promise::XS
+    - cpanm --notest Promise::XS AnyEvent
     - cpanm --notest ExtUtils::MakeMaker
 
 matrix:
